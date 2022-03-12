@@ -5,25 +5,25 @@
   vars:
     max_clients: 200
   tasks:
-#  - name: All tasks for CentOS
-#    block:
-#      - name: quick fix CentOS
-#        shell:
-#          dnf -y --disablerepo '*' --enablerepo=extras swap centos-linux-repos centos-stream-repos && \
-#          dnf -y distro-sync && \
-#          dnf module disable -y postgresql && \
-#          dnf -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm && \
-#          dnf -y install postgresql11-server postgresql11 && \
-#          /usr/pgsql-11/bin/postgresql-11-setup initdb && \
-#          systemctl enable --now postgresql-11  && \
-#          su postgres -c 'createuser pgsqlcentos --superuser'
-#        args:
-#          executable: /usr/bin/bash
-#  
-#    when: 
-#      -  ansible_distribution == "CentOS"
-#      -  ansible_distribution_major_version == "8"
-#
+  - name: All tasks for CentOS
+    block:
+      - name: quick fix CentOS
+        shell:
+          dnf -y --disablerepo '*' --enablerepo=extras swap centos-linux-repos centos-stream-repos && \
+          dnf -y distro-sync && \
+          dnf module disable -y postgresql && \
+          dnf -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm && \
+          dnf -y install postgresql11-server postgresql11 && \
+          /usr/pgsql-11/bin/postgresql-11-setup initdb && \
+          systemctl enable --now postgresql-11  && \
+          su postgres -c 'createuser pgsqlcentos --superuser'
+        args:
+          executable: /usr/bin/bash
+  
+    when: 
+      -  ansible_distribution == "CentOS"
+      -  ansible_distribution_major_version == "8"
+
   - name: All tasks for Ubuntu 18.04
     block:
       - name: install 1_ubuntu
