@@ -1,2 +1,8 @@
-server1 ansible_user=root ansible_host=164.90.183.126
-server2 ansible_user=root ansible_host=164.90.183.126
+server1 ansible_user=user ansible_host=68.183.219.83               ansible_password=vdpyuhsrtouh   
+server2 ansible_user=user ansible_host=68.183.211.246              ansible_password=czmaejwczomj   
+server3 ansible_user=user ansible_host=68.183.219.44               ansible_password=axcllswzsgph   
+
+#68.183.219.83  
+#68.183.211.246 
+#68.183.219.44  
+#

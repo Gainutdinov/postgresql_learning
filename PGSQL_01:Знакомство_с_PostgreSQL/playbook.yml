@@ -1,68 +1,106 @@
 ---
-- hosts: server1
+- hosts: all
   become: yes
+  gather_facts: yes
   vars:
-    http_port: 80
     max_clients: 200
   tasks:
-  - name: ensure nginx is at the latest version
-    apt:
-      pkg:
-      - vim
-      - apt-transport-https
-      - wget
-      - software-properties-common
-      state: latest
-  - name: gpg key
-    ansible.builtin.apt_key:
-      url: https://packages.grafana.com/gpg.key
-      state: present
-  - name: Add specified repository into sources list using specified filename
-    ansible.builtin.apt_repository:
-      repo: deb https://packages.grafana.com/oss/deb stable main
-      state: present
-      filename: grafana.list
-  - name: install grafana
-    apt:
-      pkg:
-      - grafana
-      update_cache: yes
-
-  - name: Restart service grafana in all cases, also issue daemon-reload to pick up config changes
-    ansible.builtin.systemd:
-      state: restarted
-      daemon_reload: yes
-      name: 'grafana-server.service'
-  
-  - name: create prometheus datasource
-    grafana_datasource:
-      name: prometheus
-      ds_type: prometheus
-      ds_url: "http://{{ ansible_host }}:9090"
-      grafana_url: "http://{{ ansible_host }}:3000"
-      access: direct
-      tls_skip_verify: true
-  
-  - name: Create a Grafana user
-    community.grafana.grafana_user:
-      url: "http://{{ ansible_host }}:3000"
-      url_username: admin
-      url_password: admin
-      name: "admin"
-      email: admin@google.com
-      login: admin
-      password: rebrainme
-      is_admin: true
-      state: present
+#  - name: All tasks for CentOS
+#    block:
+#      - name: quick fix CentOS
+#        shell:
+#          dnf -y --disablerepo '*' --enablerepo=extras swap centos-linux-repos centos-stream-repos && \
+#          dnf -y distro-sync && \
+#          dnf module disable -y postgresql && \
+#          dnf -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm && \
+#          dnf -y install postgresql11-server postgresql11 && \
+#          /usr/pgsql-11/bin/postgresql-11-setup initdb && \
+#          systemctl enable --now postgresql-11  && \
+#          su postgres -c 'createuser pgsqlcentos --superuser'
+#        args:
+#          executable: /usr/bin/bash
 #  
+#    when: 
+#      -  ansible_distribution == "CentOS"
+#      -  ansible_distribution_major_version == "8"
 #
-#sudo apt-get install -y software-properties-common wget
-#wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
-#echo "deb https://packages.grafana.com/oss/deb stable main" | sudo tee -a /etc/apt/sources.list.d/grafana.list
-#sudo apt-get update
-#sudo apt-get install grafana
-#sudo systemctl daemon-reload
-#sudo systemctl start grafana-server
-#sudo systemctl status grafana-server
-
-
+  - name: All tasks for Ubuntu 18.04
+    block:
+      - name: install 1_ubuntu
+        ansible.builtin.apt:
+          pkg:
+          - wget 
+          - ca-certificates
+          state: latest
+      - name: 2_ubuntu
+        ansible.builtin.apt_key:
+          url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          state: present
+      - name: 3_ubuntu
+        ansible.builtin.apt_repository:
+          repo: deb http://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main
+          filename: pgdg
+          state: present
+      - name: install 4_ubuntu
+        ansible.builtin.apt:
+          pkg:
+          - postgresql-12
+          - postgresql-client-12
+          state: latest
+      - name: 5_ubuntu
+        shell:
+          su - postgres "/usr/bin/createuser pgsqlubuntu18 --superuser"
+        args:
+          executable: /bin/bash
+    when: 
+      -  ansible_distribution == "Ubuntu"
+      -  ansible_distribution_major_version == "18"
+  
+  - name: All tasks for Ubuntu 20.04
+    block:
+      - name: 20_ubuntu
+        shell:
+          apt update && \
+          apt-get install -y git build-essential libreadline-dev zlib1g-dev && \
+          wget https://ftp.postgresql.org/pub/source/v13.1/postgresql-13.1.tar.gz && \
+          gunzip postgresql-13.1.tar.gz && \
+          tar xf postgresql-13.1.tar && \
+          cd ./postgresql-13.1 && \
+          ./configure && \
+          make && \
+          make install && \
+          adduser postgres  --shell /usr/bin/bash --disabled-password  --gecos ""  && \
+          mkdir -p /var/lib/postgresql/13.1 && \
+          chown postgres /var/lib/postgresql/13.1 && \
+          su - postgres -c "/usr/local/pgsql/bin/initdb -D /var/lib/postgresql/13.1" && \
+          su - postgres -c "/usr/local/pgsql/bin/pg_ctl -D /var/lib/postgresql/13.1 -l logfile start" && \
+          su - postgres -c "/usr/local/pgsql/bin/createdb test" && \
+          su - postgres -c "/usr/local/pgsql/bin/psql test" && \
+          su - postgres -c "/usr/local/pgsql/bin/createuser pgsqlubuntu20 --superuser"
+        args:
+          executable: /usr/bin/bash
+    when: 
+      -  ansible_distribution == "Ubuntu"
+      -  ansible_distribution_major_version == "20"
+  
+###
+###
+###
+###
+###
+###
+###
+###
+###
+###
+###  - name: gpg key
+###    ansible.builtin.apt_key:
+###      url: https://packages.grafana.com/gpg.key
+###      state: present
+###  - name: Add specified repository into sources list using specified filename
+###    ansible.builtin.apt_repository:
+###      repo: deb https://packages.grafana.com/oss/deb stable main
+###      state: present
+###      filename: grafana.list
+####  
+####
