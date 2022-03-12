@@ -1,6 +1,6 @@
-server1 ansible_user=user ansible_host=68.183.219.83               ansible_password=vdpyuhsrtouh   
-server2 ansible_user=user ansible_host=68.183.211.246              ansible_password=czmaejwczomj   
-server3 ansible_user=user ansible_host=68.183.219.44               ansible_password=axcllswzsgph   
+server1 ansible_user=user ansible_host=159.65.120.133              ansible_password=sacqjspqbnci          
+server2 ansible_user=user ansible_host=159.65.113.215              ansible_password=xponszfxbhlj          
+server3 ansible_user=user ansible_host=159.65.118.37               ansible_password=mvcqtnfdpxmz          
 
 #68.183.219.83  
 #68.183.211.246 
